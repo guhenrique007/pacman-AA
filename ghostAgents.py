@@ -62,14 +62,26 @@ class MeuGhost( GhostAgent ):
   def getDistribution( self, state ):
     # Read variables from state
     from util import PriorityQueue, Counter
-    ghostState = state.getGhostState( self.index )
-    legalActions = state.getLegalActions( self.index )
-    pos = state.getGhostPosition( self.index )
-    isScared = ghostState.scaredTimer > 0
     
+	#estado inicial do fantasma extraida para possibilitar o acesso
+	#dos estados sucessores
+	ghostState = state.getGhostState( self.index )
+    
+	#possiveis acoes que servem para movimentar os fantasmas
+	legalActions = state.getLegalActions( self.index )
+    
+	#posicao inicial do fantasma para calculo de métricas de distancia
+	#em relação ao pacman
+	pos = state.getGhostPosition( self.index )
+	isScared = ghostState.scaredTimer > 0
+    
+	#recorda posições de outros fantasmas para que eles utilizem
+	#caminhos diferentes
     posicoesFantasmas = set()
-    dist = Counter()
-
+    
+	dist = Counter()
+	
+	#marca posicao dos fantasmas para que não utilizem o mesmo caminho
     for posicao in state.getGhostPositions():
       if posicao != state.getGhostPosition(self.index):
         posicoesFantasmas.add(posicao)
@@ -81,12 +93,11 @@ class MeuGhost( GhostAgent ):
     newPositions = [( pos[0]+a[0], pos[1]+a[1] ) for a in actionVectors]
     pacmanPosition = state.getPacmanPosition()
 
-    # Select best actions given the state
-    #distancesToPacman = [manhattanDistance( pos, pacmanPosition ) for pos in newPositions]
     distancesToPacman = []
     for pos in newPositions:
       if pos in posicoesFantasmas:
-        distancesToPacman.append(manhattanDistance(pos, pacmanPosition)*2)
+        #posicoes com fantasmas tem a heuristica dobrada
+		distancesToPacman.append(manhattanDistance(pos, pacmanPosition)*2)
       else:
         distancesToPacman.append(manhattanDistance(pos, pacmanPosition))
 
@@ -95,26 +106,37 @@ class MeuGhost( GhostAgent ):
       bestProb = self.prob_scaredFlee
     
     else:
+	  #fila de prioridades para pegar os menores caminhos
       heap = PriorityQueue()
       for proxEstado, proxAcao, proxPos in self.getGhostSuccessors(
-        state.getLegalActions(self.index),state):
-        prioridade = manhattanDistance(proxPos, pacmanPosition) + 1
+		state.getLegalActions(self.index),state):
+        #distancia de manhattan eh a heuristica e 1 eh custo entre um estado e seu
+		#sucessor 	
+		prioridade = manhattanDistance(proxPos, pacmanPosition) + 1
         if proxPos in posicoesFantasmas:
           prioridade *= 2 
-        heap.push((proxEstado, proxAcao, 1), prioridade)
+        #coloca no heap os sucessores do estado inicial
+		heap.push((proxEstado, proxAcao, 1), prioridade)
       
       while not (heap.isEmpty()): 
         estadoAtual, primAcao, numAcoes  = heap.pop()
         if estadoAtual.getGhostPosition(self.index) == pacmanPosition:
           dist[primAcao] = 1
-          return dist
+          # fim do loop, pois foi achado o melhor caminho ate o pacman
+		  # eh retornada a primeira acao, para que o fantasma se mova
+		  return dist
         for proxEstado, proxAcao, proxPos in self.getGhostSuccessors(
             estadoAtual.getLegalActions(self.index), estadoAtual):
-          
+			
+			#caso a posição do fantasma nesse candidato a possivel proximo estado
+			#não seja a mesma posição de um outro fantasma, então o candidato
+			#está em um possível caminho ótimo
             if not proxEstado.getGhostPosition(self.index) in posicoesFantasmas:
               numAcoes += 1
               heuristica = manhattanDistance(proxPos, pacmanPosition)
-              heap.push((proxEstado, primAcao, numAcoes)
+              #caminho com novo estado colocado no heap de forma a encontrar mais um
+			  #estado pertencente ao caminho
+			  heap.push((proxEstado, primAcao, numAcoes)
                   ,numAcoes + heuristica)
               posicoesFantasmas.add(proxPos)
 
@@ -186,3 +208,7 @@ class DirectionalGhost( GhostAgent ):
               heap.push((proxEstado, primAcao, numAcoes)
                   ,numAcoes + heuristica)
               posicoesFantasmas.add(proxPos)
+	
+	sucessores = self.getGhostSuccessors(legalActions,state)
+	_, fugir = max((manhattanDistance(estado[2], pacmanPosition), estado[1]) for estado in sucessores)
+    dist[fugir] = 1; return dist
