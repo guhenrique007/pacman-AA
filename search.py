@@ -1,5 +1,3 @@
-# search.py
-# ---------
 # Licensing Information: Please do not distribute or publish solutions to this
 # project. You are free to use and extend these projects for educational
 # purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
@@ -82,7 +80,24 @@ def depthFirstSearch(problem):
   print "Start's successors:", problem.getSuccessors(problem.getStartState())
   """
   "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  
+  #print "Start:", problem.getStartState()
+  #print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+  #print "Start's successors:", problem.getSuccessors(problem.getStartState())
+  
+  pilha = util.Stack()
+  estadoAtual = problem.getStartState()
+  pilha.push(estadoAtual)
+  while(not problem.isGoalState(estadoAtual)):
+    for estado in problem.getSuccessors():
+      pilha.push(estado)
+    if pilha.isEmpty():
+        break
+    estado = pilha.pop()
+  
+  return util.raiseNotDefined()
+    
+  
 
 def breadthFirstSearch(problem):
   "Search the shallowest nodes in the search tree first. [p 81]"
@@ -104,7 +119,40 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
   "Search the node that has the lowest combined cost and heuristic first."
   "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  from util import PriorityQueue
+
+
+  def retornaListaSequenciaAcoes(infoEstadoFinal):
+    
+    def preencheListaAcoes(infoEstadoFinal, listaAcoes):
+      if infoEstadoFinal.pai is not None:
+        preencheListaAcoes(infoEstadoFinal.infoEstadoPai, listaAcoes)
+      listaAcoes.append(infoEstadoFinal.direcao)
+
+    listaAcoes = []
+    preencheListaAcoes(infoEstadoFinal, listaAcoes)
+    return listaAcoes
+
+  estadoAtual = problem.getStartState()
+  heap = PriorityQueue()
+  InfoEstado = namedtuple('InfoEstado','estado infoEstadoPai direcao profundidade')
+  heap.push(InfoEstado(estadoAtual, None, None, 0),0)
+  expandidos = set()
+  while not heap.isEmpty():
+    infoEstadoAtual = heap.pop()
+    if problem.isGoalState(infoEstadoAtual.estado):
+      listaAcoes = retornaListaSequenciaAcoes(infoEstadoAtual) 
+      #retorna a partir do 1 pois o 0 é o estado inicial
+      return lista[1:]
+    expandidos.add(infoEstadoAtual)
+    for estado in problem.getSuccessors(infoEstadoAtual.estado):
+      infoSucessor = InfoEstado(estado[0], infoEstadoAtual, estado[1]
+          ,infoEstadoAtual.profundidade + 1)
+      if infoSucessor not in expandidos:
+        prioridade = infoEstadoAtual.profundidade + heuristic(
+            infoSucessor.estado, problem)
+        heap.push(infoSucessor,prioridade)
+     
     
   
 # Abbreviations
