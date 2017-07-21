@@ -1,5 +1,5 @@
 AA IA
-Victor Baessa, Renato Ferreira de Melo, Gustavo Henrique Lima
+Leandro Silva, Renato Ferreira de Melo, Gustavo Henrique Lima
 
 Arquivos modificados:
 
