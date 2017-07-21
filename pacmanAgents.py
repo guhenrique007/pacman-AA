@@ -26,6 +26,7 @@ class LeftTurnAgent(game.Agent):
     if Directions.LEFT[left] in legal: return Directions.LEFT[left]
     return Directions.STOP
 
+<<<<<<< HEAD
 class MeuAgente(Agent):     
   def getPacmanSuccessors(self, legalActions, state):
     return [(state.generateSuccessor(self.index, action), action, state.generateSuccessor(self.index, action).getPacmanPosition()) for action in legalActions]
@@ -73,6 +74,8 @@ class MeuAgente(Agent):
 	# retorna acao aleatoria, pois nesse ponto não ha mais acao boa
     return random.choice(state.getLegalPacmanActions())
 
+=======
+>>>>>>> parent of ce765a8... soh falta os comentarios e o readme
 class GreedyAgent(Agent):
   def __init__(self, evalFn="scoreEvaluation"):
     self.evaluationFunction = util.lookup(evalFn, globals())
